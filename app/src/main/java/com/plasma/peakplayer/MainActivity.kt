@@ -242,7 +242,7 @@ class MainActivity : AppCompatActivity() {
                 ?.sortedBy { it.name.lowercase() }
                 ?: emptyList()
 
-            lvSongs.adapter = SongAdapter(songList)
+            lvSongs.adapter = SongAdapter(songList.toTypedArray())
 
             if (songList.isNotEmpty()) {
                 currentIndex = 0
@@ -329,24 +329,29 @@ val minutes = totalSeconds / 60
 val seconds = totalSeconds % 60
 return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
 }
-inner class SongAdapter(private val files: List) : ArrayAdapter(this, 0, files) {
-private val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_song, parent, false)
-val file = files[position]
-val tvName = view.findViewById(R.id.tvItemName)
-val tvInfo = view.findViewById(R.id.tvItemInfo)
-tvName.text = file.name
-val sizeMb = String.format(Locale.GERMANY, "%.2f MB", file.length() / (1024.0 * 1024.0))
-val timeStr = dateFormat.format(Date(file.lastModified()))
-tvInfo.text = "$timeStr  |  $sizeMb"
-return view
-}
-}
-override fun onDestroy() {
-super.onDestroy()
-handler.removeCallbacksAndMessages(null)
-mediaPlayer?.release()
-mediaPlayer = null
-}
+    inner class SongAdapter(private val files: Array<File>) : ArrayAdapter<File>(this, 0, files) {
+        private val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_song, parent, false)
+            val file = files[position]
+
+            val tvName = view.findViewById<TextView>(R.id.tvItemName)
+            val tvInfo = view.findViewById<TextView>(R.id.tvItemInfo)
+
+            tvName.text = file.name
+            val sizeMb = String.format(Locale.GERMANY, "%.2f MB", file.length() / (1024.0 * 1024.0))
+            val timeStr = dateFormat.format(Date(file.lastModified()))
+            tvInfo.text = "$timeStr  |  $sizeMb"
+
+            return view
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
 }

@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Fix XML namespaces
+        run: |
+          U=$(printf '%s.%s/apk/res/%s' 'http://schemas' 'android.com' 'android')
+          find app/src -name "*.xml" -exec sed -i "s|http://android.com|$U|g" {} +
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
